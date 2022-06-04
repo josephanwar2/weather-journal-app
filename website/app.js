@@ -11,19 +11,23 @@ document.getElementById("generate").addEventListener("click", genMethod);
 
 function genMethod(e) {
   const zip = document.getElementById("zip").value;
-  try {getWeather(baseUrl, zip, apiKey).then((data) => {
-    
-      const userResp = document.getElementById("feelings").value;
-      postData("/add", {
-        temp: data.list[0].main.temp,
-        feel: userResp,
-        date: newDate,
-      });
-      retrieveDataAndUpdateUI();
-    
-  });} catch (error) {
-      console.log("error", error);
-    }
+  try {
+    getWeather(baseUrl, zip, apiKey).then((data) => {
+      if (data.cod === "200") {
+        const userResp = document.getElementById("feelings").value;
+        postData("/add", {
+          temp: data.list[0].main.temp,
+          feel: userResp,
+          date: newDate,
+        });
+        retrieveDataAndUpdateUI();
+      } else {
+        console.log(data.message);
+      }
+    });
+  } catch (error) {
+    console.log("error", error);
+  }
 }
 
 const getWeather = async (baseURL, zip, key) => {
@@ -42,7 +46,8 @@ const retrieveDataAndUpdateUI = async () => {
     // Transform into JSON
     const allData = await resp.json();
     // Write updated data to DOM elements
-    document.getElementById("temp").innerHTML = Math.round(allData.temp) + " degrees";
+    document.getElementById("temp").innerHTML =
+      Math.round(allData.temp) + " degrees";
     document.getElementById("content").innerHTML = allData.feel;
     document.getElementById("date").innerHTML = allData.date;
   } catch (error) {
